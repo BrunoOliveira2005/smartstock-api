@@ -3,6 +3,8 @@ package com.smartstock.service;
 import com.smartstock.exception.ResourceNotFoundException;
 import com.smartstock.model.Product;
 import com.smartstock.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,8 +18,8 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<Product> listAll() {
-        return productRepository.findAll();
+    public Page<Product> listAll(Pageable pageable) {
+        return productRepository.findAll(pageable);
     }
 
     public Product save(Product product) {

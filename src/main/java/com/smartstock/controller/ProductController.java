@@ -1,11 +1,14 @@
 package com.smartstock.controller;
 
+import com.smartstock.dto.PageResponseDTO;
 import com.smartstock.dto.ProductRequestDTO;
 import com.smartstock.dto.ProductResponseDTO;
 import com.smartstock.mapper.ProductMapper;
 import com.smartstock.response.ApiResponse;
 import com.smartstock.service.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,13 +24,24 @@ public class ProductController {
     }
 
     @GetMapping
-    public ApiResponse<List<ProductResponseDTO>> listAll() {
-        List<ProductResponseDTO> products = productService.listAll()
-                .stream()
-                .map(ProductMapper::toResponseDTO)
-                .toList();
+    public ApiResponse<PageResponseDTO<ProductResponseDTO>> listAll(Pageable pageable) {
 
-        return new ApiResponse<>("Products listed successfully", products);
+        Page<ProductResponseDTO> productsPage = productService.listAll(pageable)
+                .map(ProductMapper::toResponseDTO);
+
+        PageResponseDTO<ProductResponseDTO> response = new PageResponseDTO<>(
+                productsPage.getContent(),
+                productsPage.getNumber(),
+                productsPage.getSize(),
+                productsPage.getTotalElements(),
+                productsPage.getTotalPages(),
+                productsPage.isFirst(),
+                productsPage.isLast(),
+                productsPage.hasNext(),
+                productsPage.hasPrevious()
+        );
+
+        return new ApiResponse<>("Products listed successfully", response);
     }
 
     @PostMapping
