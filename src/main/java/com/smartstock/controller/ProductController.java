@@ -2,7 +2,7 @@ package com.smartstock.controller;
 
 import com.smartstock.dto.ProductRequestDTO;
 import com.smartstock.dto.ProductResponseDTO;
-import com.smartstock.model.Product;
+import com.smartstock.mapper.ProductMapper;
 import com.smartstock.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -23,55 +23,34 @@ public class ProductController {
     public List<ProductResponseDTO> listAll() {
         return productService.listAll()
                 .stream()
-                .map(this::convertToResponseDTO)
+                .map(ProductMapper::toResponseDTO)
                 .toList();
     }
 
     @PostMapping
     public ProductResponseDTO save(@Valid @RequestBody ProductRequestDTO dto) {
-        Product product = convertToEntity(dto);
-        Product savedProduct = productService.save(product);
-        return convertToResponseDTO(savedProduct);
+        return ProductMapper.toResponseDTO(
+                productService.save(ProductMapper.toEntity(dto))
+        );
     }
 
     @PutMapping("/{id}")
     public ProductResponseDTO update(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO dto) {
-        Product product = convertToEntity(dto);
-        Product updatedProduct = productService.update(id, product);
-        return convertToResponseDTO(updatedProduct);
+        return ProductMapper.toResponseDTO(
+                productService.update(id, ProductMapper.toEntity(dto))
+        );
     }
 
     @GetMapping("/low-stock")
     public List<ProductResponseDTO> getLowStock() {
         return productService.findLowStock()
                 .stream()
-                .map(this::convertToResponseDTO)
+                .map(ProductMapper::toResponseDTO)
                 .toList();
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         productService.delete(id);
-    }
-
-    private Product convertToEntity(ProductRequestDTO dto) {
-        Product product = new Product();
-        product.setName(dto.getName());
-        product.setCategory(dto.getCategory());
-        product.setPrice(dto.getPrice());
-        product.setQuantityInStock(dto.getQuantityInStock());
-        product.setMinimumStock(dto.getMinimumStock());
-        return product;
-    }
-
-    private ProductResponseDTO convertToResponseDTO(Product product) {
-        return new ProductResponseDTO(
-                product.getId(),
-                product.getName(),
-                product.getCategory(),
-                product.getPrice(),
-                product.getQuantityInStock(),
-                product.getMinimumStock()
-        );
     }
 }
