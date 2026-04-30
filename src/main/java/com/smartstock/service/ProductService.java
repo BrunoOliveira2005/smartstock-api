@@ -1,5 +1,6 @@
 package com.smartstock.service;
 
+import com.smartstock.exception.ResourceNotFoundException;
 import com.smartstock.model.Product;
 import com.smartstock.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -22,18 +23,19 @@ public class ProductService {
     public Product save(Product product) {
 
         if (product.getQuantityInStock() != null &&
-            product.getMinimumStock() != null &&
-            product.getQuantityInStock() < product.getMinimumStock()) {
+                product.getMinimumStock() != null &&
+                product.getQuantityInStock() < product.getMinimumStock()) {
 
             System.out.println("ALERTA: Produto com estoque baixo -> " + product.getName());
         }
 
         return productRepository.save(product);
     }
+
     public Product update(Long id, Product updatedProduct) {
 
         Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         existingProduct.setName(updatedProduct.getName());
         existingProduct.setCategory(updatedProduct.getCategory());
@@ -52,7 +54,12 @@ public class ProductService {
                 .filter(p -> p.getQuantityInStock() < p.getMinimumStock())
                 .toList();
     }
+
     public void delete(Long id) {
-        productRepository.deleteById(id);
+
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        productRepository.delete(product);
     }
 }
