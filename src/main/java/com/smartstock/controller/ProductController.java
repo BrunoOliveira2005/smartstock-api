@@ -24,9 +24,14 @@ public class ProductController {
     }
 
     @GetMapping
-    public ApiResponse<PageResponseDTO<ProductResponseDTO>> listAll(Pageable pageable) {
+    public ApiResponse<PageResponseDTO<ProductResponseDTO>> listAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String category,
+            Pageable pageable
+    ) {
 
-        Page<ProductResponseDTO> productsPage = productService.listAll(pageable)
+        Page<ProductResponseDTO> productsPage = productService
+                .listAll(name, category, pageable)
                 .map(ProductMapper::toResponseDTO);
 
         PageResponseDTO<ProductResponseDTO> response = new PageResponseDTO<>(

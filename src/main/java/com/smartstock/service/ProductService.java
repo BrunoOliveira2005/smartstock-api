@@ -1,6 +1,7 @@
 package com.smartstock.service;
 
 import com.smartstock.exception.ResourceNotFoundException;
+
 import com.smartstock.model.Product;
 import com.smartstock.repository.ProductRepository;
 import org.springframework.data.domain.Page;
@@ -18,8 +19,16 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public Page<Product> listAll(Pageable pageable) {
-        return productRepository.findAll(pageable);
+    public Page<Product> listAll(String name, String category, Pageable pageable) {
+
+        String nameFilter = name == null ? "" : name;
+        String categoryFilter = category == null ? "" : category;
+
+        return productRepository.findByNameContainingIgnoreCaseAndCategoryContainingIgnoreCase(
+                nameFilter,
+                categoryFilter,
+                pageable
+        );
     }
 
     public Product save(Product product) {
